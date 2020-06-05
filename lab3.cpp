@@ -3,10 +3,36 @@
 #include <vector>
 #include <iomanip>
 #include <numeric>
+#include <algorithm>
 
 using namespace std;
 
-void out(vector<vector<int>> v, int y, int x, vector<int> storage, vector<int> need, int hy, int hx) {
+int find_min(vector<int> v) {
+    vector<int> t(v);
+    replace(t.begin(), t.end(), 0, INT_MAX);
+    sort(t.begin(), t.end());
+    if (t[0] == INT_MAX || t[1] == INT_MAX) {
+        return 0;
+    }
+    return t[1] - t[0];
+}
+
+void transpose(vector<vector<int> > &b)
+{
+    vector<vector<int> > trans_vec(b[0].size(), vector<int>());
+
+    for (int i = 0; i < b.size(); i++)
+    {
+        for (int j = 0; j < b[i].size(); j++)
+        {
+            trans_vec[j].push_back(b[i][j]);
+        }
+    }
+    b = trans_vec;
+}
+
+void out(vector<vector<int>> v, int y, int x, vector<int> storage, vector<int> need, int hy, int hx,
+    vector<vector<int>> right = vector<vector<int>>(), vector<vector<int>> down = vector<vector<int>>()) {
     if (hy - 1 > y) {
         cout << "err" << endl;
         hy = -1;
@@ -17,23 +43,39 @@ void out(vector<vector<int>> v, int y, int x, vector<int> storage, vector<int> n
     }
     for (int i = 0; i < y; i++) {
         for (int j = 0; j < x; j++) {
-            cout << setw(3) << v[i][j] << " ";
+            cout << setw(4) << v[i][j] << " ";
         }
-        cout << "   " << storage[i];
-        if (i == hy - 1) cout << setw(3) << "+";
+        cout << setw(2) << " | " << setw(3) << storage[i];
+        if (i == hy - 1) cout << setw(4) << "+"; else cout << setw(4) << "|";
+        // diff
+        if (right.size() > 0) {
+            for (int k = 0; k < right[i].size(); k++) {
+                cout << setw(2) << right[i][k] << " ";
+            }
+        }
         cout << endl;
     }
     cout << endl;
     for (int j = 0; j < x; j++) {
-        cout << setw(3) << need[j] << " ";
+        cout << setw(4) << need[j] << " ";
     }
     cout << endl;
     if (hx != -1) {
         for (int i = 0; i < hx - 1; i++) {
-            cout << setw(3) << " " << " ";
+            cout << setw(4) << " " << " ";
         }
-        cout << setw(3) << "+" << endl;
+        cout << setw(4) << "+" << endl;
     }
+    if (down.size() > 0) {
+        transpose(down);
+        for (int i = 0; i < down.size(); i++) {
+            for (int j = 0; j < down[i].size(); j++) {
+                cout << setw(4) << down[i][j] << " ";
+            }
+            cout << endl;
+        }
+    }
+    cout << endl;
 }
 
 int main() {
@@ -96,9 +138,30 @@ int main() {
         need.push_back(sumA - sumB);
     }
 
-    out(m, y, x, storage, need, 3, 3);
+    out(m, y, x, storage, need, -1, -1);
 
+    vector<vector<int>> right;
+    for (int i = 0; i < y; i++) {
+        vector<int> t;
+        right.push_back(t);
+    }
+    vector<vector<int>> down;
+    for (int i = 0; i < x; i++) {
+        vector<int> t;
+        down.push_back(t);
+    }
+
+    for (int i = 0; i < y; i++) {
+        right[i].push_back(find_min(m[i]));
+    }
+
+    vector<vector<int>> tmp(m);
+    transpose(tmp);
+    for (int i = 0; i < x; i++) {
+        down[i].push_back(find_min(tmp[i]));
+    }
     
-
+    out(m, y, x, storage, need, -1, -1, right, down);
+    
     return 0;
 }
