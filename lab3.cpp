@@ -142,8 +142,9 @@ int main() {
     vector<int> down;
 
     // algh
+    cout << "solve: " << endl;
     vector<int> path;
-    for (int z = 0; z < 2; z++) {
+    while (accumulate(need.begin(), need.end(), 0)) {
         cout << "---------" << endl;
         for (int i = 0; i < y; i++) {
             right.push_back(find_min(m[i]));
@@ -175,25 +176,58 @@ int main() {
             out(m, y, x, storage, need, -1, im, right, down);
         }
 
+        // all zeros
+        int flag = 0;
+        for (int i = 0; i < y; i++) {
+            for (int j = 0; j < x; j++) {
+                if (m[i][j] != 0) flag = 1;
+             }
+        }
+
         int row, col;
         int elem;
-        if (rd == 0) {
-            int ind = 0, mm = INT_MAX;
-            for (int i = 0; i < x; i++) {
-                if (m[im][i] < mm) {
-                    mm = m[im][i];
-                    ind = i;
+        if (flag == 1) {
+            // cout << "flag 1" << endl;
+            if (rd == 0) {
+                int ind = 0, mm = INT_MAX;
+                for (int i = 0; i < x; i++) {
+                    if (m[im][i] < mm && m[im][i] > 0) {
+                        mm = m[im][i];
+                        ind = i;
+                    }
+                }
+                row = im;
+                col = ind;
+                elem = mm;  
+            } else {
+                int ind = 0, mm = INT_MAX;
+                for (int i = 0; i < y; i++) {
+                    if (m[i][im] < mm && m[i][im] > 0) {
+                        mm = m[i][im];
+                        ind = i;
+                    }
+                }
+                row = ind;
+                col = im;
+                elem = mm;            
+            }
+        } else {
+            for (int i = 0; i < y; i++) {
+                if (storage[i] > 0) {
+                    row = i;
+                    break;
                 }
             }
-            row = im;
-            col = ind;
-            elem = mm;  
-        } else {
-            // TODO
-            cout << "not implemented yet :(" << endl;
-            break;
+            for (int j = 0; j < x; j++) {
+                if (need[j] > 0) {
+                    col = j;
+                    break;
+                }
+            }
+            elem = 0;
         }
-        cout << col << "/" << row << endl;
+        
+        cout << "x " << col << " | y " << row << endl;
         int tov;
         if (storage[row] < need[col]) {
             tov = storage[row];
@@ -205,15 +239,27 @@ int main() {
                 m[i][col] = 0;
             }
         } else {
-            // ??? вырожденный план ???
+            cout << "zero deliv\n0" << endl;
+            path.push_back(0);
+            tov = storage[row];
+            vector<int> zv(x, 0);
+            m[im] = zv;
+            for (int i = 0; i < y; i++) {
+                m[i][col] = 0;
+            }
         }
-
+        cout << "min(" << storage[row] << ", " << need[col] << ") = " << tov << endl; 
+        storage[row] -= tov;
+        need[col] -= tov;
 
         cout << elem << " * " << tov << " = " << elem * tov << endl;
-        path.push_back(tov);
+        path.push_back(tov * elem);
         right.clear();
         down.clear();
     }
+    cout << endl << endl;
+    for (int i = 0; i < path.size(); i++) cout << path[i] << " ";
 
+    cout << endl << "sum: " << accumulate(path.begin(), path.end(), 0) << endl;
     return 0;
 }
