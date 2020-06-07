@@ -155,13 +155,6 @@ int main() {
             down.push_back(find_min(tmp[i]));
         }
         int ma = 0, im = -1, rd = -1;
-        for (int i = 0; i < x; i++) {
-            if (down[i] > ma) {
-                ma = down[i];
-                im = i;
-                rd = 1;
-            }
-        }
         for (int i = 0; i < y; i++) {
             if (right[i] > ma) {
                 ma = right[i];
@@ -169,6 +162,14 @@ int main() {
                 rd = 0;
             }
         }
+        for (int i = 0; i < x; i++) {
+            if (down[i] > ma) {
+                ma = down[i];
+                im = i;
+                rd = 1;
+            }
+        }
+
 
         // cout << "(" << ma << " " << im << " " << rd << " " << endl;
         if (rd == 0) {
