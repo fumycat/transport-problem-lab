@@ -83,7 +83,7 @@ int main() {
 
     ifstream input("input.txt");
     input >> y >> x;
-    
+
     for (int i = 0; i < y; i++) {
         vector<int> v;
         for (int j = 0; j < x; j++) {
@@ -155,13 +155,6 @@ int main() {
             down.push_back(find_min(tmp[i]));
         }
         int ma = 0, im = -1, rd = -1;
-        for (int i = 0; i < y; i++) {
-            if (right[i] > ma) {
-                ma = right[i];
-                im = i;
-                rd = 0;
-            }
-        }
         for (int i = 0; i < x; i++) {
             if (down[i] > ma) {
                 ma = down[i];
@@ -169,6 +162,14 @@ int main() {
                 rd = 1;
             }
         }
+        for (int i = 0; i < y; i++) {
+            if (right[i] > ma) {
+                ma = right[i];
+                im = i;
+                rd = 0;
+            }
+        }
+
         // cout << "(" << ma << " " << im << " " << rd << " " << endl;
         if (rd == 0) {
             out(m, y, x, storage, need, im, -1, right, down);
@@ -186,7 +187,19 @@ int main() {
 
         int row, col;
         int elem;
+        int last = 0;
         if (flag == 1) {
+            if (im == -1) {
+                for (int i = 0; i < y; i++) {
+                    for (int j = 0; j < x; j++) {
+                        if (m[i][j] > 0) {
+                            rd = 0;
+                            im = i;
+                            last = 1;
+                        }
+                    }
+                }
+            }
             // cout << "flag 1" << endl;
             if (rd == 0) {
                 int ind = 0, mm = INT_MAX;
@@ -232,18 +245,20 @@ int main() {
         if (storage[row] < need[col]) {
             tov = storage[row];
             vector<int> zv(x, 0);
-            m[im] = zv;
+            m[row] = zv;
         } else if (storage[row] > need[col]) {
             tov = need[col];
             for (int i = 0; i < y; i++) {
                 m[i][col] = 0;
             }
         } else {
-            cout << "zero deliv\n0" << endl;
-            path.push_back(0);
+            if (flag == 1 && last == 0) {
+                cout << "zero deliv\n0" << endl;
+                path.push_back(0);
+            }
             tov = storage[row];
             vector<int> zv(x, 0);
-            m[im] = zv;
+            m[row] = zv;
             for (int i = 0; i < y; i++) {
                 m[i][col] = 0;
             }
@@ -257,9 +272,15 @@ int main() {
         right.clear();
         down.clear();
     }
-    cout << endl << endl;
+    cout << endl << endl << "cells: ";
     for (int i = 0; i < path.size(); i++) cout << path[i] << " ";
 
     cout << endl << "sum: " << accumulate(path.begin(), path.end(), 0) << endl;
+    cout << "n + m - 1 = " << x + y - 1 << endl << "filled cells: " << path.size() << endl;
+    if (x + y - 1 != path.size()) {
+        cout << "solution degenerate" << endl;
+    } else {
+        cout << "solution not degenerate" << endl;
+    }
     return 0;
 }
